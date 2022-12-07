@@ -1,12 +1,31 @@
 /*
-This code reads from four sensors
-The distances are translated to keycommands
-if it already printed a value, dont print the same one again
-WANT TO ADD
------------
-button that stops
-reverb on and off button
-*/
+
+AUTH: Robert Linnemann
+File: SLIDAR.c
+Course: ECEN 494/495 - University of Nebraska Lincoln
+Description:
+This project is uses VL53L0X time of flight sensors to determine distance 
+for a rail. The distance changes the note that is sent to Ardour to play
+music. This begins by assigning different addresses to each sensor on the 
+bus in order to gather unique data from each sensor. The pins where the 
+XSHUT is connected to is defined. These are used to assign new addresses.
+Initilization is done and arrays can be created to store the last note 
+played. XSHUT all the pins low and then high to reset. Set the XSHUT for 
+each sensor high one at a time. If any of the sensors cant be found then
+do not begin the program and return an error message for debuggin purposes.
+read_quad_sensors() reads the values from all the sensors and prints them
+to the serial monitor. If the distance falls within a certain range, then
+played that specified note. There are two notes per rail so an array of size
+2 can hold the last note played status. If the first note in a rail is played
+then change the zero index to a 1 and set the 1 index to a 0. The opposite
+is true when the second note in a rail is played. When distance is determined,
+before sending a note, check to see if the note has already been played
+by seeing if its approprote array index is 1. If the index is 0 then play it
+otherwise dont play it again. If the sensors read a distance that translates 
+to the back wall of the rail, then reset both indexs in the array to 0 
+to allow for either a repeated note to be played or a unique note. 
+
+ */
 
 #include "Adafruit_VL53L0X.h"
 #include "PluggableUSBHID.h"
@@ -120,7 +139,7 @@ void setID() {
 
 }
 
-void read_dual_sensors() {
+void read_quad_sensors() {
 
   lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
   lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
@@ -298,7 +317,7 @@ void setup() {
 
 void loop() {
 
-  read_dual_sensors();
+  read_quad_sensors();
   delay(10);
 
 }
